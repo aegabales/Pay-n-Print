@@ -7,22 +7,24 @@ import json
 import subprocess
 import platform
 
+import platform
+
 if platform.system() == "Windows":
     try:
         import win32api
+        import pythoncom
+        import requests
+        import comtypes.client
+        import secrets
+        from admin import admin_bp
+        from ocr_autodetect import run_analysis
+        import fitz  # PyMuPDF
+        import numpy as np
+        import pymysql
+        import win32print
     except ImportError:
         pass
 
-import requests
-import pythoncom
-import comtypes.client
-import secrets
-from admin import admin_bp
-from ocr_autodetect import run_analysis
-import fitz  # PyMuPDF
-import numpy as np
-import pymysql
-import win32print
 
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
