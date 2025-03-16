@@ -16,11 +16,6 @@ import fitz  # PyMuPDF
 import numpy as np
 import pymysql
 import win32print
-import platform
-
-if platform.system() == "Windows":
-    import win32api
-
 
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
