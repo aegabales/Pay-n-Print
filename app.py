@@ -7,6 +7,8 @@ import json
 import subprocess
 import secrets
 import platform
+from admin import admin_bp
+from ocr_autodetect import run_analysis
 
 if platform.system() == "Windows":
     try:
@@ -14,8 +16,6 @@ if platform.system() == "Windows":
         import pythoncom
         import requests
         import comtypes.client
-        from admin import admin_bp
-        from ocr_autodetect import run_analysis
         import fitz  # PyMuPDF
         import numpy as np
         import pymysql
