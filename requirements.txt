@@ -8,4 +8,4 @@ comtypes
 numpy
 pymysql
 pip==25.0.1
-
+gunicorn
