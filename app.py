@@ -43,10 +43,10 @@ def uploaded_file(filename):
 
 # Database Connection
 db = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    password="",
-    database="pnp"
+    host=os.getenv("host"),
+    user=os.getenv("user"),
+    password=os.getenv("password"),
+    database=os.getenv("database")
 )
 cursor = db.cursor(dictionary=True)
 
