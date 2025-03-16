@@ -10,3 +10,6 @@ pymysql
 pip==25.0.1
 gunicorn
 Pillow
+pytesseract  
+pdf2image
+
