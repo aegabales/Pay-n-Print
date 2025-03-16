@@ -4,11 +4,6 @@ mysql-connector-python
 pymupdf 
 pdfkit
 requests
-import platform
-
-if platform.system() == "Windows":
-    import win32api
-
 comtypes
 numpy
 pymysql
