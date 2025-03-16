@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+  <link rel="stylesheet" href="static/css/login.css">
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+</head>
+
+<body>
+  <header>
+    <h1>PAY 'N PRINT</h1>
+  </header>
+
+  <main>
+    <form action="" class="form" method="post">
+      <div class="form-title">
+        <h1>ADMIN</h1>
+        <p>Please enter your details.</p>
+      </div>
+
+      <div class="form-field">
+        <div class="form-field-input">
+          <input id="email" type="text" name="email" placeholder=" " required>
+          <label for="email">Email</label>
+        </div>
+
+        <div class="form-field-input">
+          <input id="password" type="text" name="password" placeholder=" " required>
+          <span class="toggle-password" onclick="togglePasswordVisibility()">
+            <span id="eyeIcon" class="material-symbols-sharp">visibility_off</span>
+          </span>
+          <label for="password">Password</label>
+        </div>
+
+        <button class="login-btn" type="submit">Login</button>
+        <div class="guest">
+          <p>Need printing services? <a href="index.html">Go Back</a></p>
+        </div>
+        <span class="divider">ISATU</span>
+      </div>
+    </form>
+
+  </main>
+  <script>
+    function togglePasswordVisibility() {
+      const passwordField = document.getElementById('password');
+      const eyeIcon = document.getElementById('eyeIcon');
+
+      if (passwordField.type === 'password') {
+        passwordField.type = 'text';
+        eyeIcon.textContent = 'visibility';
+      } else {
+        passwordField.type = 'password';
+        eyeIcon.textContent = 'visibility_off';
+      }
+    }
+  </script>
+</body>
+
+</html>

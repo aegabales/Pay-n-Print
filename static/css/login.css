@@ -1,0 +1,179 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+:root {
+    --background: #16568F;
+    --login: #333;
+    --gray: #A0A0A0;
+    --input-bg: #f2f3f4;
+    --hd: #09074d;
+    --yellow: #e6b400;
+}
+
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+    align-items: center;
+    background-color: var(--input-bg);
+}
+
+header {
+    color: var(--input-bg);
+    background-color: var(--hd);
+    padding: 10px;
+    text-align: center;
+}
+
+/* Form Design */
+.form {
+    margin: auto;
+    margin-top: 50px;
+    width: min(100%, 325px);
+    background: #fff;
+    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+    padding: 40px;
+    border-radius: 10px;
+}
+
+.form-title {
+    position: relative;
+    padding-left: 15px;
+    margin-bottom: 20px;
+}
+
+.form-title::before {
+    content: '';
+    position: absolute;
+    width: 5px;
+    height: 100%;
+    background: var(--yellow);
+    left: 0;
+}
+
+.form-title h1 {
+    color: var(--background);
+}
+
+.form-title p {
+    color: var(--gray);
+    font-size: .9rem;
+}
+
+.form-field {
+    display: grid;
+    gap: .8rem;
+}
+
+.form-field-input {
+    position: relative;
+}
+
+.form-field-input input {
+    width: 100%;
+    padding: 20px 13px 5px;
+    background: var(--input-bg);
+    font-size: 1rem;
+    transition: .3s ease;
+}
+
+.form-field-input label {
+    position: absolute;
+    left: 15px;
+    top: 16px;
+    color: var(--gray);
+    pointer-events: none;
+    transition: .3s ease;
+}
+
+.form-field-input span {
+    color: gray;
+    position: absolute;
+    left: 100px;
+    bottom: 7px;
+    cursor: pointer;
+}
+
+.form-field-input input:focus {
+    border: 2px solid var(--login);
+}
+
+.form-field-input input:focus~label,
+.form-field-input input:not(:placeholder-shown)~label {
+    font-size: .85rem;
+    top: 5px;
+}
+
+.form-field-input input:focus~label {
+    color: var(--login);
+}
+
+.active label {
+    top: 5px;
+    font-size: .8rem;
+}
+
+.guest {
+    text-align: center;
+}
+
+.guest p {
+    color: var(--gray);
+    font-size: .7rem;
+}
+
+.guest a {
+    color: var(--background);
+    font-size: .7rem;
+    text-decoration: none;
+    font-weight: 700;
+}
+
+input,
+button {
+    border-radius: 5px;
+    border: 2px solid transparent;
+    outline: none;
+    transition: .3s ease;
+}
+
+button {
+    padding: 10px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: .3s ease;
+}
+
+.login-btn {
+    background: var(--yellow);
+    color: #fff;
+    font-weight: 600;
+}
+
+.login-btn:hover {
+    background: #fff;
+    color: var(--login);
+    border: 2px solid var(--yellow);
+}
+
+.divider {
+    display: flex;
+    color: var(--gray);
+    font-size: .9rem;
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    width: 50%;
+    height: 1px;
+    background: var(--gray);
+    margin: auto;
+}

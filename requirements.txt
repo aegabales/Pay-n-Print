@@ -1,0 +1,10 @@
+flask
+werkzeug
+mysql-connector-python
+pymupdf 
+pdfkit
+requests
+pywin32
+comtypes
+numpy
+pymysql

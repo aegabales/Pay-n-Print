@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pay 'N Print - Upload</title>
+    <link rel="stylesheet" href="static/css/uploads.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+</head>
+
+<body>
+
+    <header>
+        <h1>PAY 'N PRINT</h1>
+    </header>
+
+    <div class="main">
+        <div class="pricelist">
+            <div class="price-title">
+                <span class="divider">Price List</span>
+            </div>
+            <div class="content">
+                <!-- Display Paper Size -->
+                <p class="ps">Paper Size</p>
+                {% for row in paper_sizes %}
+                <p>
+                    <b class="item-name">{{ row.ItemName }}</b>
+                    <span class="item-price">₱{{ "%.2f"|format(row.price) }}</span>
+                </p>
+                {% endfor %}
+
+                <!-- Display Additional Cost -->
+                <br>
+                <p class="ac">Additional Cost</p>
+                {% for row in additional_costs %}
+                <p>
+                    <b class="item-name">{{ row.ItemName }}</b>
+                    <span class="item-price">+ ₱{{ "%.2f"|format(row.price) }}</span>
+                </p>
+                {% endfor %}
+
+                <div class="next">
+                    <a href="{{ url_for('upload_page') }}">
+                        <p>Upload</p>
+                        <span class="material-symbols-sharp">arrow_forward_ios</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

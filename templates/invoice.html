@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invoice - Pay 'N Print</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/invoice.css') }}">
+  <script
+    src="https://www.paypal.com/sdk/js?client-id=AY-GKTsV-KY3Aw1GnKgwoVH3Gy8V7lBwCXKTobQStm5AfbdLKgDPHNxonDZEG1L6J0hcTRuiEgfGGHMC&currency=PHP"></script>
+</head>
+
+<body>
+  <div class="invoice-container">
+
+    <div class="button-container">
+      <form class="applyform" method="post">
+        <button class="apply-btn" type="submit" name="custom">Customized Print</button>
+      </form>
+
+      <button id="open-popup" class="apply-btn">View Invoice</button>
+    </div>
+
+    <div class="gif-container">
+      <img src="{{ url_for('static', filename='includes/1.gif') }}" alt="Payment GIF" class="gif">
+    </div>
+
+    <!-- Invoice Popup -->
+    <div class="popup">
+      <button class="close-btn">&times;</button>
+      <h2>INVOICE</h2>
+
+      <h3>Print Job Details</h3>
+      <div class="receipt-item"><span>File Name:</span> <span>{{ filename or 'N/A' }}</span></div>
+      <div class="receipt-item"><span>Page Count:</span> <span>{{ page_count or 'N/A' }}</span></div>
+      <div class="receipt-item"><span>Paper Size:</span> <span>{{ size or 'N/A' }}</span></div>
+      <div class="receipt-item"><span>Print Orientation:</span> <span>{{ orientation or 'N/A' }}</span></div>
+
+      <h3>Price Breakdown</h3>
+      <div class="price-breakdown">
+        <!-- size -->
+        <div class="receipt-item">
+          <span>{{ size }}</span>
+          <span>₱{{ "%.2f"|format(base) }}</span>
+        </div>
+        <div class="receipt-item breakdown-detail">
+          <span>₱{{ "%.2f"|format(base_cost) }} x {{ page_count }}</span>
+        </div>
+
+        <!-- bnw -->
+        <div class="receipt-item">
+          <span>Black & White Images</span>
+          <span>₱{{ "%.2f"|format(bnwImageTotal) }}</span>
+        </div>
+        <div class="receipt-item breakdown-detail">
+          <span>₱{{ "%.2f"|format(bnw_image_cost) }} x {{ bnw_pages or 0}}</span>
+        </div>
+
+        <!-- colored -->
+        <div class="receipt-item">
+          <span>Colored Images</span>
+          <span>₱{{ "%.2f"|format(coloredImageTotal) }}</span>
+        </div>
+        <div class="receipt-item breakdown-detail">
+          <span>₱{{ "%.2f"|format(color_image_cost) }} x {{ color_pages or 0}}</span>
+        </div>
+
+        <!-- text -->
+        <div class="receipt-item">
+          <span>Text</span>
+          <span><b>{{coloredText}}</b></span>
+          <span>₱{{ "%.2f"|format(color_text_cost or 0) }}</span>
+        </div>
+
+        <!-- total -->
+        <div class="receipt-item total">
+          <span>Total cost for {{ copies }} copies:</span>
+          <span>₱{{ "%.2f"|format(total_cost) }}</span>
+        </div>
+
+        <div id="paypal-button-container"></div>
+
+        <form action="{{ url_for('process_payment') }}" method="POST">
+          <input type="hidden" name="file_name" value="{{ filename or '' }}">
+          <input type="hidden" name="pageCount" value="{{ page_count or '0' }}">
+          <input type="hidden" name="copies" value="{{ copies or '1' }}">
+          <input type="hidden" name="sizeName" value="{{ size or '' }}">
+          <input type="hidden" name="colorName" value="{{ color or '' }}">
+          <input type="hidden" name="orientName" value="{{ orientation or '' }}">
+          <input type="hidden" name="totalPrice" value="{{ total_cost or '0' }}">
+          <input type="hidden" name="applyID" value="{{ applyID or '0' }}">
+        </form>
+
+      </div>
+
+      <script>
+        <!-- PayPal Payment -->
+        paypal.Buttons({
+          createOrder: function (data, actions) {
+            return actions.order.create({
+              purchase_units: [{
+                amount: { value: '{{ total_cost|default(0) | round(2) }}' }
+              }]
+            });
+          },
+          onApprove: function (data, actions) {
+            return actions.order.capture().then(function (details) {
+              var xhr = new XMLHttpRequest();
+              xhr.open("POST", "{{ url_for('process_payment') }}", true);
+              xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+              xhr.onload = function () {
+                const fileName = encodeURIComponent("{{ filename }}");  // Encode filename safely
+                if (xhr.status === 200) {
+                  console.log("Payment processed successfully:", xhr.responseText);
+                  window.location.href = "/payment_success?file_name=" + encodeURIComponent("{{ filename }}");
+                } else {
+                  console.error("❌ Payment processing failed:", xhr.responseText);
+                  window.location.href = "/payment_error?file_name=" + fileName;
+                }
+              };
+
+              xhr.onerror = function () {
+                console.error("❌ Network error or server is unreachable.");
+                const fileName = encodeURIComponent("{{ filename }}");
+                window.location.href = "/payment_error?file_name=" + fileName;
+              };
+
+              xhr.send(
+                `pay=true` +
+                `&file_name=${encodeURIComponent("{{ filename or '' }}")}` +
+                `&pageCount=${encodeURIComponent("{{ page_count or 0 }}")}` +
+                `&copies=${encodeURIComponent("{{ copies or 1 }}")}` +
+                `&sizeName=${encodeURIComponent("{{ size or '' }}")}` +
+                `&colorName=${encodeURIComponent("{{ color or '' }}")}` +
+                `&orientName=${encodeURIComponent("{{ orientation or '' }}")}` +
+                `&totalPrice=${encodeURIComponent("{{ total_cost or 0.00 }}")}` +
+                `&applyID=${encodeURIComponent("{{ applyID or 0 }}")}`
+              );
+
+            }).catch(function (error) {
+              console.error("❌ Payment approval failed:", error);
+              const fileName = encodeURIComponent("{{ filename }}");
+              window.location.href = "/payment_error?file_name=" + fileName;
+            });
+          },
+          onError: function (err) {
+            console.error("❌ PayPal Error:", err);
+            const fileName = encodeURIComponent("{{ filename }}");
+            window.location.href = "/payment_error?file_name=" + fileName;
+          }
+        }).render('#paypal-button-container');
+
+        document.addEventListener("DOMContentLoaded", function () {
+          const openPopupButton = document.getElementById("open-popup");
+          const popup = document.querySelector(".popup");
+          const closePopupButton = document.querySelector(".close-btn");
+
+          if (openPopupButton && popup && closePopupButton) {
+            openPopupButton.addEventListener("click", function () {
+              popup.classList.add("active");
+            });
+
+            closePopupButton.addEventListener("click", function () {
+              popup.classList.remove("active");
+            });
+
+            window.addEventListener("click", function (event) {
+              if (!popup.contains(event.target) && !openPopupButton.contains(event.target)) {
+                popup.classList.remove("active");
+              }
+            });
+          }
+        });
+      </script>
+</body>
+
+</html>

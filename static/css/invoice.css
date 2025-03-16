@@ -1,0 +1,243 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+/* Reset some default styles */
+body,
+h1,
+p,
+button:root {
+  --white: #f5f5f5;
+  --light: #F9E076;
+  --yellow: #e6b400;
+  --eggnog: #FAE29C;
+  --dark: #02055A;
+  --blue: #02198B;
+  --white: #f3f3f3;
+  --w2: #fff;
+  --lgn: #333;
+  --gray: #A0A0A0;
+  --background: #16568F;
+  --login: #333;
+  --gray: #A0A0A0;
+  --input-bg: #f2f3f4;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: #ffff;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+  overflow: scroll;
+  scrollbar-width: none;
+}
+
+h2,
+h3 {
+  text-align: center;
+  color: #333;
+}
+
+section {
+  background-color: var(--w2);
+  border-radius: 5px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+body.active-popup .main {
+  filter: blur(5px);
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.main {
+  transition: filter 0.3s ease-in-out;
+}
+
+.content {
+  max-width: 1200px;
+  padding: 20px;
+  margin: 0 auto;
+}
+
+.popup {
+  font-family: 'Courier New', Courier, monospace;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 320px;
+  padding: 20px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+}
+
+.popup {
+  display: none;
+}
+
+.popup.active {
+  margin-top: 20px;
+  display: block;
+  opacity: 1;
+  visibility: visible;
+}
+
+
+/* Center the buttons */
+.button-container {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  /* Space between buttons */
+  margin-top: 20px;
+}
+
+.apply-btn {
+  background: var(--background);
+  color: #fff;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.3s;
+  border: none;
+}
+
+.apply-btn:hover {
+  background: var(--blue);
+}
+
+/* Hide 'View Invoice' when invoice is displayed */
+body.active-popup #open-popup {
+  display: none;
+}
+
+
+.popup .close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 50px;
+  height: 50px;
+  background: #fff;
+  color: #111;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 30px;
+}
+
+.popup .close-btn:hover {
+  color: var(--yellow);
+  background-color: var(--w2);
+}
+
+.receipt {
+  text-align: center;
+}
+
+.receipt h2 {
+  font-size: 24px;
+  margin-bottom: 10px;
+  font-weight: 700;
+  color: var(--background);
+}
+
+.receipt h3 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.receipt-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.breakdown-detail {
+  font-size: 12px;
+  padding-left: 20px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.price-breakdown {
+  border-top: 1px dashed #000;
+  padding-top: 10px;
+  margin-bottom: 15px;
+}
+
+.receipt-item span {
+  display: inline-block;
+  text-align: left;
+}
+
+.receipt-item span:nth-child(3) {
+  text-align: right;
+}
+
+.total {
+  font-weight: bold;
+  font-size: 16px;
+  margin-top: 10px;
+  border-top: 2px dashed #000;
+  padding-top: 10px;
+}
+
+.pay-btn {
+  background-color: #000;
+  color: #fff;
+  border: none;
+  padding: 10px;
+  width: 100%;
+  cursor: pointer;
+  margin-top: 20px;
+  font-size: 16px;
+}
+
+.pay-btn:hover {
+  background: #fff;
+  color: var(--background);
+  border-color: var(--background);
+}
+
+p {
+  font-size: 14px;
+  margin: 10px 0;
+  letter-spacing: 1px;
+}
+
+.gif-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.gif {
+  max-width: 100%;
+  width: 450px;
+  height: auto;
+  object-fit: contain;
+}
+
+@media (max-width: 768px) {
+  .gif {
+    width: 450px;
+  }
+}
+
+@media (max-width: 480px) {
+  .gif {
+    width: 400px;
+  }
+}

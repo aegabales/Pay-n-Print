@@ -1,0 +1,6 @@
+total cost = 
+  (paper size) * (page count) 
+  (image price) * (larger images)
+  (text price) [>2 sentences] = 1.00 : 2.00 //
+
+

@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pay 'N Print - Preview</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/preview.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.5.141/pdf.min.js"></script>
+    <script
+        src="https://www.paypal.com/sdk/js?client-id=AY-GKTsV-KY3Aw1GnKgwoVH3Gy8V7lBwCXKTobQStm5AfbdLKgDPHNxonDZEG1L6J0hcTRuiEgfGGHMC&currency=PHP"></script>
+</head>
+
+<body>
+    <!-- Scroll Buttons -->
+    <div class="scroll-buttons">
+        <button id="scrollUp" class="arrow-btn">▲</button>
+        <button id="scrollDown" class="arrow-btn">▼</button>
+    </div>
+
+    <div class="main">
+        <div class="content">
+            <!-- PDF Preview Section -->
+            <section class="pdf">
+                <div class="preview-pane">
+                    {% if filename %}
+                    <div id="pdfContainer"></div>
+                    <script>
+                        document.addEventListener("DOMContentLoaded", function () {
+                            const pdfContainer = document.getElementById("pdfContainer");
+                            const pdfUrl = "/modified_prints/{{ filename }}";
+
+                            const settings = {
+                                sizeName: "{{ sizeName }}",
+                                colorName: "{{ colorName }}",
+                                orientName: "{{ orientName }}",
+                                pages: "{{ pages }}",
+                                specificPages: "{{ specificPages or '' }}",
+                                copies: "{{ Copies }}"
+                            };
+
+                            console.log("Preview settings:", settings);
+
+                            loadPDF(pdfUrl, settings.pages, settings.specificPages, settings.orientName, settings.sizeName, settings.colorName);
+                        });
+
+                        function loadPDF(url, pages, specificPages, orientName, sizeName, colorName) {
+                            pdfjsLib.getDocument(url).promise.then(pdf => {
+                                const pdfContainer = document.getElementById("pdfContainer");
+                                pdfContainer.innerHTML = ""; // Clear previous render
+
+                                const pageNumbers = pages === "custom" && specificPages.length > 0
+                                    ? specificPages
+                                    : Array.from({ length: pdf.numPages }, (_, i) => i + 1);
+
+                                if (pageNumbers.length === 0) {
+                                    alert("No valid pages found. Please check your custom page input.");
+                                    return;
+                                }
+
+
+                                pageNumbers.forEach(pageNum => {
+                                    pdf.getPage(pageNum).then(page => {
+                                        const canvas = document.createElement("canvas");
+                                        canvas.style.margin = "10px 0";
+                                        canvas.style.border = "2px solid #ccc";
+                                        pdfContainer.appendChild(canvas);
+
+                                        renderPage(page, canvas, orientName, sizeName, colorName);
+                                    }).catch(error => console.error("Error rendering page:", error));
+                                });
+                            }).catch(error => console.error("Error loading PDF:", error));
+                        }
+
+                        function renderPage(page, canvas, orientName, sizeName, colorName) {
+                            let desiredWidth, desiredHeight;
+
+                            if (sizeName === "Legal (long)") {
+                                desiredWidth = orientName === "Landscape" ? 1344 : 816;
+                                desiredHeight = orientName === "Landscape" ? 816 : 1344;
+                            } else {
+                                desiredWidth = orientName === "Landscape" ? 1056 : 816;
+                                desiredHeight = orientName === "Landscape" ? 816 : 1056;
+                            }
+
+                            const viewport = page.getViewport({ scale: 1 });
+                            const scale = Math.min(desiredWidth / viewport.width, desiredHeight / viewport.height);
+
+                            const offsetX = (desiredWidth - viewport.width * scale) / 2;
+                            const offsetY = (desiredHeight - viewport.height * scale) / 2;
+
+                            canvas.width = desiredWidth;
+                            canvas.height = desiredHeight;
+
+                            const context = canvas.getContext("2d");
+                            const scaledViewport = page.getViewport({ scale: scale });
+
+                            context.clearRect(0, 0, canvas.width, canvas.height);
+
+                            page.render({
+                                canvasContext: context,
+                                viewport: scaledViewport,
+                                transform: [1, 0, 0, 1, offsetX, offsetY]
+                            }).promise.then(() => {
+                                if (colorName === 'Black & White') {
+                                    convertCanvasToBlackAndWhite(canvas);
+                                }
+                            }).catch(console.error);
+                        }
+
+                        function convertCanvasToBlackAndWhite(canvas) {
+                            const context = canvas.getContext("2d");
+                            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                            const data = imageData.data;
+
+                            for (let i = 0; i < data.length; i += 4) {
+                                const brightness = (data[i] + data[i + 1] + data[i + 2]) / 3;
+                                data[i] = brightness;
+                                data[i + 1] = brightness;
+                                data[i + 2] = brightness;
+                            }
+
+                            context.putImageData(imageData, 0, 0);
+                        }
+                    </script>
+
+
+
+                    {% else %}
+                    <p>No file to preview. Try uploading again.</p>
+                    {% endif %}
+                </div>
+            </section>
+
+            <section>
+                <div class="settings-pane">
+                    <div class="header-sp">
+                        <h2>Settings</h2>
+                        <h5>{{ page_count or 'Page count not available' }} sheet{{ 's' if (page_count or 0) > 1 else ''
+                            }}</h5>
+                    </div>
+
+                    <label class="page">Page(s):</label>
+                    <div class="custom">
+                        <label>
+                            <input type="radio" name="Pages" value="all" {% if pages=='all' %}checked{% endif %}
+                                disabled> All pages
+                        </label>
+                        <label>
+                            <input type="radio" name="Pages" value="custom" {% if pages=='custom' %}checked{% endif %}
+                                disabled>
+                            <input type="text" id="specificPages" name="specificPages" value="{{ spages or '' }}"
+                                disabled>
+                        </label>
+
+                    </div>
+
+                    <div class="form-field-input">
+                        <input type="number" name="Copies" min="1" value="{{ copies or '1' }}" disabled>
+                        <label>Copies</label>
+                    </div>
+
+                    <div class="form-field">
+                        <div class="form-select">
+                            <div class="custom-select">
+                                <label>Paper Size:</label>
+                                <select name="sizeName" disabled>
+                                    <option value="Letter" {% if size_name=="Letter" %}selected{% endif %}>Letter
+                                    </option>
+                                    <option value="Legal (long)" {% if size_name=="Legal (long)" %}selected{% endif %}>
+                                        Legal (long)</option>
+                                </select>
+                            </div>
+
+                            <div class="custom-select">
+                                <label>Color Mode</label>
+                                <select name="colorName" disabled>
+                                    <option value="Black & White" {% if color_name=="Black & White" %}selected{% endif
+                                        %}>Black & White</option>
+                                    <option value="Color" {% if color_name=="Colored" %}selected{% endif %}>Colored
+                                    </option>
+                                </select>
+                            </div>
+
+
+
+                            <div class="custom-select">
+                                <label>Print Orientation</label>
+                                <select name="orientName" disabled>
+                                    <option value="Landscape" {% if orient_name=="Landscape" %}selected{% endif %}>
+                                        Landscape</option>
+                                    <option value="Portrait" {% if orient_name=="Portrait" %}selected{% endif %}>
+                                        Portrait</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="paypal-credentials">
+                        <h3>PayPal Testing Credentials</h3>
+                        <p><strong>Username:</strong> <span class="highlight">aeg@gmail.com</span></p>
+                        <p><strong>Password:</strong> <span class="highlight">Print070520</span></p>
+                        <small>Take note that this is for testing payments only.</small>
+                    </div>
+                </div>
+
+                <div class="button-container">
+                    <form method="post">
+                        <button class="delete-btn" type="submit" name="delete">Go Back</button>
+                    </form>
+                    <button id="open-popup" class="apply-btn">View Invoice</button>
+            </section>
+        </div>
+    </div>
+
+
+    <!-- Invoice Popup -->
+    <div class="popup">
+        <button class="close-btn">&times;</button>
+        <h2>INVOICE</h2>
+        <h3>Print Job Details</h3>
+        <div class="receipt-item"><span>File Name:</span> <span>{{ filename or 'N/A' }}</span></div>
+        <div class="receipt-item"><span>Page Count:</span> <span>{{ page_count or 'N/A' }}</span></div>
+        <div class="receipt-item"><span>Paper Size:</span> <span>{{ sizeName or 'N/A' }}</span></div>
+        <div class="receipt-item"><span>Color Mode:</span> <span>{{ colorName or 'N/A' }}</span></div>
+        <div class="receipt-item"><span>Print Orientation:</span> <span>{{ orientName or 'N/A' }}</span></div>
+
+        <h3>Price Breakdown</h3>
+        <div class="price-breakdown">
+            <div class="receipt-item">
+                <span>{{ sizeName }}</span>
+                <span></span>
+                <span>₱{{ "%.2f"|format(base_cost) }}</span>
+            </div>
+            <div class="receipt-item breakdown-detail">
+                <span>₱{{ "%.2f"|format(page_cost) }} x {{ filteredPageCount or "0" }}</span>
+                <span></span>
+            </div>
+
+            <div class="receipt-item">
+                <span>{{ colorName }} Images</span>
+                <span></span>
+                <span>₱{{ "%.2f"|format(image_cost) }}</span>
+            </div>
+            <div class="receipt-item breakdown-detail">
+                <span>₱{{ "%.2f"|format(image_cost_per_page) }} x {{ pageImage }}</span>
+                <span></span>
+            </div>
+
+            <div class="receipt-item">
+                <span>{{ colorName }} Text</span>
+                <span></span>
+                <span>₱{{ "%.2f"|format(colored_text_price) }}</span>
+            </div>
+
+            <div class="receipt-item total">
+                <span>Total cost for {{ copies }} copies:</span>
+                <span>₱{{ "%.2f"|format(totalPrice) }}</span>
+            </div>
+
+            <div id="paypal-button-container"></div>
+        </div>
+
+
+
+
+        <script>
+            <!-- PayPal Payment -->
+            paypal.Buttons({
+                createOrder: function (data, actions) {
+                    return actions.order.create({
+                        purchase_units: [{
+                            amount: { value: '{{ totalPrice|default(0) | round(2) }}' }
+                        }]
+                    });
+                },
+                onApprove: function (data, actions) {
+                    return actions.order.capture().then(function (details) {
+                        var xhr = new XMLHttpRequest();
+                        xhr.open("POST", "{{ url_for('process_payment') }}", true);
+                        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+                        xhr.onload = function () {
+                            const fileName = encodeURIComponent("{{ filename }}");  // Encode filename safely
+                            if (xhr.status === 200) {
+                                console.log("Payment processed successfully:", xhr.responseText);
+                                window.location.href = "/payment_success?file_name=" + encodeURIComponent("{{ filename }}");
+                            } else {
+                                console.error("❌ Payment processing failed:", xhr.responseText);
+                                window.location.href = "/payment_error?file_name=" + fileName;
+                            }
+                        };
+
+                        xhr.onerror = function () {
+                            console.error("❌ Network error or server is unreachable.");
+                            const fileName = encodeURIComponent("{{ filename }}");
+                            window.location.href = "/payment_error?file_name=" + fileName;
+                        };
+
+                        xhr.send("pay=true&file_name={{ filename }}&pageCount={{ page_count }}&copies={{ copies }}&sizeName={{ sizeName }}&colorName={{ colorName }}&orientName={{ orientName }}&totalPrice={{ totalPrice }}&applyID={{ applyID }}");
+                    }).catch(function (error) {
+                        console.error("❌ Payment approval failed:", error);
+                        const fileName = encodeURIComponent("{{ filename }}");
+                        window.location.href = "/payment_error?file_name=" + fileName;
+                    });
+                },
+                onError: function (err) {
+                    console.error("❌ PayPal Error:", err);
+                    const fileName = encodeURIComponent("{{ filename }}");
+                    window.location.href = "/payment_error?file_name=" + fileName;
+                }
+            }).render('#paypal-button-container');
+
+            document.addEventListener("DOMContentLoaded", function () {
+                fetch('/recent_settings')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            console.error("Error fetching settings:", data.error);
+                            return;
+                        }
+
+                        document.querySelector('input[name="Pages"][value="' + data.pages + '"]').checked = true;
+                        document.querySelector('#specificPages').value = data.specificPages || "";
+                        document.querySelector('input[name="Copies"]').value = data.copies || "1";
+                        document.querySelector('select[name="sizeName"]').value = data.sizeName || "Letter";
+                        document.querySelector('select[name="colorName"]').value = data.colorName || "Black & White";
+                        document.querySelector('select[name="orientName"]').value = data.orientName || "Portrait";
+                    })
+                    .catch(error => console.error('Error fetching settings:', error));
+            });
+
+            document.addEventListener("DOMContentLoaded", function () {
+                const openPopupButton = document.getElementById("open-popup");
+                const popup = document.querySelector(".popup");
+                const closePopupButton = document.querySelector(".close-btn");
+                const body = document.body;
+
+                if (openPopupButton && popup && closePopupButton) {
+                    openPopupButton.addEventListener("click", function () {
+                        body.classList.add("active-popup"); // Uses CSS for smooth visibility transition
+                    });
+
+                    closePopupButton.addEventListener("click", function () {
+                        body.classList.remove("active-popup"); // Hides popup using CSS
+                    });
+
+                    // Close popup if user clicks outside of it
+                    window.addEventListener("click", function (event) {
+                        if (!popup.contains(event.target) && !openPopupButton.contains(event.target)) {
+                            body.classList.remove("active-popup");
+                        }
+                    });
+                }
+            });
+
+
+            const scrollUp = document.getElementById('scrollUp');
+            const scrollDown = document.getElementById('scrollDown');
+
+            // Function to toggle visibility of buttons
+            function toggleScrollButtons() {
+                const scrollTop = window.scrollY || document.documentElement.scrollTop;
+                const scrollHeight = document.documentElement.scrollHeight;
+                const clientHeight = window.innerHeight;
+
+                // Show/Hide the Scroll-Up button
+                if (scrollTop > 0) {
+                    scrollUp.style.display = 'block';
+                } else {
+                    scrollUp.style.display = 'none';
+                }
+
+                // Show/Hide the Scroll-Down button
+                if (scrollTop + clientHeight >= scrollHeight) {
+                    scrollDown.style.display = 'none';
+                } else {
+                    scrollDown.style.display = 'block';
+                }
+            }
+
+            // Scroll Up Button: Scroll to top of the page
+            scrollUp.addEventListener('click', function () {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+
+            // Scroll Down Button: Scroll to bottom of the page
+            scrollDown.addEventListener('click', function () {
+                window.scrollTo({
+                    top: document.documentElement.scrollHeight,
+                    behavior: 'smooth'
+                });
+            });
+
+            // Listen for scroll events
+            window.addEventListener('scroll', toggleScrollButtons);
+
+            document.addEventListener('DOMContentLoaded', toggleScrollButtons);
+        </script>
+</body>
+
+</html>

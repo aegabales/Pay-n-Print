@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <style>
+        body {
+            background-image: url("{{ url_for('static', filename='includes/2.jpg') }}");
+            background-repeat: no-repeat;
+            background-position: center;
+            background-attachment: fixed;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Main Content -->
+    <div class="container">
+        <h1>PAY &apos;N PRINT</h1>
+        <input type="password" id="admin-password" placeholder="Enter Code for Admin">
+        <button class="btn" id="admin-btn" disabled>Administrator</button>
+        <script>
+            const pricelistUrl = "{{ url_for('pricelist_page') }}";
+        </script>
+
+        <button class="btn" onclick="window.location.href = pricelistUrl;">Printing Services</button>
+
+    </div>
+
+    <script>
+        const correctPassword = "paynprint2024";
+        const adminBtn = document.getElementById('admin-btn');
+        const passwordInput = document.getElementById('admin-password');
+        const adminLoginUrl = "{{ url_for('admin.login') }}";
+
+        passwordInput.addEventListener('input', function () {
+            adminBtn.disabled = passwordInput.value !== correctPassword;
+        });
+
+        adminBtn.addEventListener('click', function () {
+            window.location.href = adminLoginUrl;
+        });
+    </script>
+</body>
+
+</html>

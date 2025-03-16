@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pay 'N Print</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/adduser.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+</head>
+
+<body>
+    <div class="container">
+        <aside>
+            <div class="top">
+                <div class="logo">
+                    <h2><span class="name">PAY 'N PRINT</span></h2>
+                </div>
+                <div class="close" id="close_btn">
+                    <span class="material-symbols-sharp">close</span>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <a href="{{ url_for('admin.adminuser') }}">
+                    <span class="material-symbols-sharp">grid_view</span>
+                    <h3>Dashboard</h3>
+                </a>
+                <a href="{{ url_for('admin.printjobs') }}">
+                    <span class="material-symbols-sharp">print</span>
+                    <h3>Print Jobs</h3>
+                </a>
+                <a href="{{ url_for('admin.addprice') }}">
+                    <span class="material-symbols-sharp">sell</span>
+                    <h3>Price List</h3>
+                </a>
+                <a href="{{ url_for('admin.notifications') }}">
+                    <span class="material-symbols-sharp">notifications</span>
+                    <h3>Notifications</h3>
+                    <span class="message-count">0</span>
+                </a>
+                <a href="{{ url_for('admin.adminuser') }}" class="active">
+                    <span class="material-symbols-sharp">person</span>
+                    <h3>Admin Users</h3>
+                </a>
+                <a href="{{ url_for('admin.logout') }}" onclick="return confirmLogout();">
+                    <span class="material-symbols-sharp">logout</span>
+                    <h3>Logout</h3>
+                </a>
+            </div>
+        </aside>
+
+        <main>
+            <div class="title">
+                <h1>Add Users</h1>
+                <small class="sub">dashboard > <a href="{{ url_for('admin.adminuser') }}">admin users</a> > <span
+                        class="primary">add user</span></small>
+            </div>
+
+            <form action="" method="post" class="form" enctype="multipart/form-data">
+                <div class="form-title">
+                    <h1>User Admin</h1>
+                    <p>Please enter your details.</p>
+                </div>
+
+                <div class="form-field">
+                    <div class="uploadcontainer">
+                        <div class="uploadbox" onclick="document.getElementById('profile_photo').click();">
+                            <div id="uploadPreviewContainer" class="uploadpreview-container">
+                                <img id="uploadPreview" src="#" alt="Upload Preview" />
+                            </div>
+                            <span id="uploadText" class="upload">
+                                <span class="material-symbols-sharp">upload</span>UPLOAD
+                            </span>
+                        </div>
+                        <input type="file" id="profile_photo" name="profile_photo" accept="image/*"
+                            onchange="previewImage(event)">
+                    </div>
+
+                    <div class="input">
+                        <div>
+                            <input id="name" type="text" name="AdminName" placeholder=" " required>
+                            <label for="name">Name</label>
+                        </div>
+                        <div>
+                            <input id="email" type="email" name="email" placeholder=" " required>
+                            <label for="email">Email</label>
+                        </div>
+                        <div>
+                            <input id="password" type="password" name="password" placeholder=" " required>
+                            <span class="toggle-password" onclick="togglePasswordVisibility()">
+                                <span id="eyeIcon" class="material-symbols-sharp">visibility_off</span>
+                            </span>
+                            <label for="password">Password</label>
+                        </div>
+                        <button class="login-btn" type="submit">Add User</button>
+                    </div>
+                </div>
+            </form>
+        </main>
+
+        <div class="right">
+            <div class="top">
+                <button id="menu_bar">
+                    <span class="material-symbols-sharp">menu</span>
+                </button>
+                <div class="theme-toggler">
+                    <span class="material-symbols-sharp active">light_mode</span>
+                    <span class="material-symbols-sharp">dark_mode</span>
+                </div>
+                <div class="profile">
+                    <div class="info">
+                        <p><b>{{ admin_name }}</b></p>
+                        <p>Admin</p>
+                    </div>
+                    <div class="profile-photo" id="profilePhoto" style="cursor: pointer;">
+                        <img src="{{ url_for('static', filename='uploads/' + admin_photo) }}" alt="Profile"
+                            id="open-popup">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const sideMenu = document.querySelector('aside');
+        const menuBtn = document.querySelector('#menu_bar');
+        const closeBtn = document.querySelector('#close_btn');
+
+        const themeToggler = document.querySelector('.theme-toggler');
+
+        menuBtn.addEventListener('click', () => {
+            sideMenu.style.display = "block"
+        })
+
+        closeBtn.addEventListener('click', () => {
+            sideMenu.style.display = "none"
+        })
+
+        themeToggler.addEventListener('click', () => {
+            document.body.classList.toggle('dark-theme-variables')
+            themeToggler.querySelector('span:nth-child(1)').classList.toggle('active')
+            themeToggler.querySelector('span:nth-child(2)').classList.toggle('active')
+        })
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const popup = document.getElementById("profileModal");
+            const btn = document.getElementById("profilePhoto");
+            const closeBtn = document.querySelector(".closed");
+
+            btn.onclick = function () {
+                popup.style.display = "block";
+            }
+
+            closeBtn.addEventListener('click', () => {
+                popup.style.display = "none"
+            })
+
+            window.onclick = function (event) {
+                if (event.target === popup) {
+                    popup.style.display = "none";
+                }
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const updates = document.querySelectorAll('.update');
+
+            updates.forEach(update => {
+                update.addEventListener('click', function () {
+                    const notificationId = this.getAttribute('data-id');
+
+                    fetch('mark_notification_read.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: new URLSearchParams({
+                            'id': notificationId
+                        })
+                    }).then(response => response.text())
+                        .then(data => {
+                            window.location.href = 'notification_details.php?id=' + notificationId;
+                        })
+                        .catch(error => console.error('Error:', error));
+                });
+            });
+        });
+
+        function confirmLogout() {
+            return confirm("Are you sure you want to logout?");
+        }
+
+        function previewImage(event) {
+            var reader = new FileReader();
+            reader.onload = function () {
+                var output = document.getElementById('uploadPreview');
+                output.src = reader.result;
+
+                document.getElementById('uploadPreviewContainer').style.display = 'block';
+                document.getElementById('profile_photo').style.display = 'none';
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        }
+
+        function togglePasswordVisibility() {
+            const passwordField = document.getElementById('password');
+            const eyeIcon = document.getElementById('eyeIcon');
+
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                eyeIcon.textContent = 'visibility';
+            } else {
+                passwordField.type = 'password';
+                eyeIcon.textContent = 'visibility_off';
+            }
+        }
+    </script>
+</body>
+
+</html>

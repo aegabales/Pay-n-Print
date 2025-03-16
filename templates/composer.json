@@ -1,0 +1,9 @@
+{
+    "require": {
+        "setasign/fpdi": "^2.6",
+        "phpoffice/phpword": "^0.18.0",
+        "thiagoalessio/tesseract_ocr": "^2.13",
+        "dompdf/dompdf": "^3.0",
+        "smalot/ipp-cups": "^1.0"
+    }
+}

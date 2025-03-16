@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pay 'N Print</title>
+    <link rel="stylesheet" href="/static/css/notif.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+</head>
+
+<body>
+    <div class="container">
+        <aside>
+            <div class="top">
+                <div class="logo">
+                    <h2><span class="name">PAY 'N PRINT</span></h2>
+                </div>
+                <div class="close" id="close_btn">
+                    <span class="material-symbols-sharp">close</span>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <a href="{{ url_for('admin.admindb') }}">
+                    <span class="material-symbols-sharp">grid_view</span>
+                    <h3>Dashboard</h3>
+                </a>
+                <a href="{{ url_for('admin.printjobs') }}">
+                    <span class="material-symbols-sharp">print</span>
+                    <h3>Print Jobs</h3>
+                </a>
+                <a href="{{ url_for('admin.addprice') }}">
+                    <span class="material-symbols-sharp">sell</span>
+                    <h3>Price List</h3>
+                </a>
+                <a href="{{ url_for('admin.notifications') }}" class="active">
+                    <span class="material-symbols-sharp">notifications</span>
+                    <h3>Notifications</h3>
+                    <span class="message-count">{{ unread_count }}</span>
+                </a>
+                <a href="{{ url_for('admin.adminuser') }}">
+                    <span class="material-symbols-sharp">person</span>
+                    <h3>Admin Users</h3>
+                </a>
+                <a href="{{ url_for('admin.logout') }}" onclick="return confirmLogout();">
+                    <span class="material-symbols-sharp">logout</span>
+                    <h3>Logout</h3>
+                </a>
+            </div>
+        </aside>
+
+        <main>
+            <div class="title">
+                <h1>Notifications</h1>
+                <small class="sub">dashboard > <span class="primary">notifications</span></small>
+            </div>
+
+            <div class="topbar">
+                <div class="search">
+                    <input type="text" id="search-input" placeholder="Search...">
+                    <span class="material-symbols-sharp">search</span>
+                </div>
+                <button id="mark-read-btn" class="mark-as-read">Mark as Read</button>
+            </div>
+
+            <div id="no-results" class="no-results">No result found.</div>
+
+            {% for notification in notifications %}
+            <div class="update" data-id="{{ notification.TransacID }}"></div>
+            <div class="notif {% if notification.NotifStatus == 'unread' %}unread{% else %}read{% endif %}">
+                <a href="{{ url_for('admin.notifdetail', id=notification.TransacID) }}">
+                    <div class="notifs">
+                        <div class="profile-photo">
+                            <img src="/static/includes/notif.png" alt="Notification">
+                        </div>
+                        <div class="message">
+                            <p><b>User</b>
+                                {% if notification.status == 'failed' %}
+                                failed to pay. Print job is cancelled.
+                                {% elif notification.status == 'success' %}
+                                received their print. Transaction #
+                                <span class="danger">{{ notification.TransacID }}</span>
+                                {% else %}
+                                has a pending transaction. Transaction #
+                                {{ notification.TransacID }}
+                                {% endif %}
+                            </p>
+                            <small class="text-muted time-ago" data-timestamp="{{ notification.created_at }}">
+                                {{ time_ago(notification.created_at) }}
+                            </small>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </main>
+
+        <div class="right">
+            <div class="top">
+                <button id="menu_bar">
+                    <span class="material-symbols-sharp">menu</span>
+                </button>
+                <div class="theme-toggler">
+                    <span class="material-symbols-sharp active">light_mode</span>
+                    <span class="material-symbols-sharp">dark_mode</span>
+                </div>
+                <div class="profile">
+                    <div class="info">
+                        <p><b>{{ admin_name }}</b></p>
+                        <p>Admin</p>
+                    </div>
+                    <div class="profile-photo" id="profilePhoto" style="cursor: pointer;">
+                        <img src="{{ url_for('static', filename='uploads/' + admin_photo) }}" alt="Profile"
+                            id="open-popup">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="profileModal" class="popup">
+        <div class="popup-content">
+            <div class="closed">
+                <span class="material-symbols-sharp">close</span>
+            </div>
+            <form method="post" enctype="multipart/form-data">
+                <div class="form-title">
+                    <h2>Update</h2>
+                </div>
+
+                <div class="form-field">
+                    <div class="upload-container">
+                        <div class="upload-box" onclick="document.getElementById('profile_photo').click();">
+                            <div id="uploadPreviewContainer" class="upload-preview-container">
+                                <img id="uploadPreview" src="#" />
+                            </div>
+                            <span id="uploadText">⬆ UPLOAD</span>
+                        </div>
+                        <input type="file" id="profile_photo" name="profile_photo" accept="image/*"
+                            onchange="previewImage(event)">
+                    </div>
+
+                    <div class="form-input">
+                        <label for="AdminName">Name</label>
+                        <input type="text" id="AdminName" name="AdminName" value="{{ admin_name }}" required>
+                    </div>
+                </div>
+                <button type="submit" name="update-btn" class="update-btn">UPDATE</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+
+        const sideMenu = document.querySelector('aside');
+        const menuBtn = document.querySelector('#menu_bar');
+        const closeBtn = document.querySelector('#close_btn');
+
+        const themeToggler = document.querySelector('.theme-toggler');
+
+        menuBtn.addEventListener('click', () => {
+            sideMenu.style.display = "block"
+        })
+
+        closeBtn.addEventListener('click', () => {
+            sideMenu.style.display = "none"
+        })
+
+        themeToggler.addEventListener('click', () => {
+            document.body.classList.toggle('dark-theme-variables')
+            themeToggler.querySelector('span:nth-child(1)').classList.toggle('active')
+            themeToggler.querySelector('span:nth-child(2)').classList.toggle('active')
+        })
+
+        const popup = document.getElementById("profileModal");
+        const btn = document.getElementById("profilePhoto");
+        const closebtn = document.querySelector(".close");
+
+        btn.onclick = function () {
+            popup.style.display = "block";
+        }
+
+        closebtn.onclick = function () {
+            popup.style.display = "none";
+        }
+
+        window.onclick = function (event) {
+            if (event.target === popup) {
+                popup.style.display = "none";
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            setInterval(() => {
+                const timeAgoElements = document.querySelectorAll('.time-ago');
+                timeAgoElements.forEach(function (element) {
+                    const timestamp = element.getAttribute('data-timestamp');
+                    timeAgo(timestamp);
+                });
+            }, 60000);
+        });
+
+        let modal = document.getElementById("modal");
+        function openmodal() {
+            modal.classList.add("open-modal");
+        }
+        function openmodal() {
+            modal.classList.remove("open-modal");
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const updates = document.querySelectorAll('.update');
+
+            updates.forEach(update => {
+                update.addEventListener('click', function () {
+                    const notificationId = this.getAttribute('data-id');
+
+                    fetch('mark_notification_read.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: new URLSearchParams({
+                            'id': notificationId
+                        })
+                    }).then(response => response.text())
+                        .then(data => {
+                            window.location.href = 'notification_details.php?id=' + notificationId;
+                        })
+                        .catch(error => console.error('Error:', error));
+                });
+            });
+        });
+
+        function confirmLogout() {
+            return confirm("Are you sure you want to logout?");
+        }
+
+        function previewImage(event) {
+            var reader = new FileReader();
+            reader.onload = function () {
+                var output = document.getElementById('uploadPreview');
+                output.src = reader.result;
+
+                document.getElementById('uploadPreviewContainer').style.display = 'block';
+                document.getElementById('profile_photo').style.display = 'none';
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('search-input');
+            const markReadBtn = document.getElementById('mark-read-btn');
+            const noResultsDiv = document.getElementById('no-results');
+            const notifications = document.querySelectorAll('.notif');
+
+            // Hide the "no results" div initially
+            noResultsDiv.style.display = 'none';
+
+            // Function to remove existing highlights
+            function removeHighlights(notification) {
+                const message = notification.querySelector('.message p');
+                message.innerHTML = message.textContent; // Reset to original text
+            }
+
+            // Function to highlight text
+            function highlightText(message, query) {
+                const textContent = message.textContent.toLowerCase();
+                const highlightedMessage = textContent.replace(
+                    new RegExp(`(${query})`, 'gi'),
+                    '<span class="highlight">$1</span>'
+                );
+                message.innerHTML = highlightedMessage;
+            }
+
+            searchInput.addEventListener('input', function () {
+                const query = searchInput.value.toLowerCase();
+                let hasResults = false;
+
+                // Hide all notifications and reset highlights initially
+                notifications.forEach(notification => {
+                    removeHighlights(notification);
+                    notification.style.display = 'none';
+                });
+
+                // Search and display matching notifications
+                if (query.trim() !== '') { // Only perform search if query is not empty
+                    notifications.forEach(notification => {
+                        const message = notification.querySelector('.message p');
+                        const textContent = message.textContent.toLowerCase();
+
+                        if (textContent.includes(query)) {
+                            notification.style.display = ''; // Show the matching notification
+                            hasResults = true;
+                            highlightText(message, query); // Apply new highlight
+                        }
+                    });
+                }
+
+                // Show or hide the "no results" div based on whether there are matches
+                noResultsDiv.style.display = hasResults ? 'none' : (query.trim() !== '' ? 'block' : 'none');
+            });
+
+            markReadBtn.addEventListener('click', function () {
+                notifications.forEach(notification => {
+                    if (notification.classList.contains('unread')) {
+                        notification.classList.remove('unread');
+                        notification.classList.add('read');
+
+                        // Optionally, send an AJAX request to update the status on the server
+                        const id = notification.querySelector('.update').getAttribute('data-id');
+                        fetch('updateNotificationStatus.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ id: id, status: 'read' })
+                        });
+                    }
+                });
+
+                noResultsDiv.style.display = 'none';
+            });
+        });
+
+
+    </script>
+</body>
+
+</html>

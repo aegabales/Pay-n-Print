@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pay 'N Print - Upload</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/uploads.css') }}">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+</head>
+
+<body>
+    <header>
+        <h1>PAY 'N PRINT</h1>
+    </header>
+
+    <div class="main">
+        <div class="form-title">
+            <h1>UPLOAD</h1>
+            <p>Upload your file here.</p>
+            <p><b>WORD/PDF</b> formats only.</p>
+        </div>
+
+        {% if message %}
+        <p style="color: red;">{{ message }}</p>
+        {% endif %}
+
+        <div class="upload-container">
+            <div class="upload-box" onclick="document.getElementById('fileInput').click();">
+                <span>⬆ UPLOAD</span>
+            </div>
+
+            <form id="uploadForm" action="{{ url_for('upload_page') }}" method="post" enctype="multipart/form-data">
+                <input type="file" id="fileInput" name="file" accept=".pdf,.doc,.docx"
+                    onchange="document.getElementById('uploadForm').submit();">
+            </form>
+        </div>
+
+        <br>
+        <div class="filecap">
+            <p>Maximum file size: 40MB</p>
+            <p>Maximum number of files: 1</p>
+        </div>
+
+        <div class="back">
+            <a href="{{ url_for('pricelist_page') }}">
+                <span class="material-symbols-sharp">arrow_back_ios</span>
+                <p>pricelist</p>
+            </a>
+        </div>
+    </div>
+</body>
+
+</html>

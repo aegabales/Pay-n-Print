@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <title>Payment Successful</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      text-align: center;
+      padding: 50px;
+    }
+
+    .success {
+      color: red;
+      font-size: 24px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1 class="success"><span class="material-symbols-sharp">print_error</span> Payment Failed!</h1>
+  <a href="{{ url_for('preview_page') }}">RETRY</a>
+</body>
+
+</html>

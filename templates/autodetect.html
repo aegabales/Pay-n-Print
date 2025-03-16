@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pay 'N Print - Settings</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/autodetect.css') }}">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.5.141/pdf.min.js"></script>
+</head>
+
+<body>
+  <!-- Scroll Buttons -->
+  <div class="scroll-buttons">
+    <button id="scrollUp" class="arrow-btn">▲</button>
+    <button id="scrollDown" class="arrow-btn">▼</button>
+  </div>
+
+  <form action="{{ url_for('autodetect_page', filename=filename) }}" class="applyform" method="post">
+    <input type="hidden" name="filename" value="{{ filename }}">
+    <section>
+      <div class="preview-pane">
+        {% if filename %}
+        <div id="pdfContainer"></div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.5.141/pdf.min.js"></script>
+        <script>
+          document.addEventListener("DOMContentLoaded", function () {
+            const pdfContainer = document.getElementById("pdfContainer");
+            const pdfUrl = "{{ url_for('uploaded_file', filename=filename) }}"; // ✅ Correct File Path
+            loadPDF(pdfUrl);
+          });
+
+          function loadPDF(url) {
+            pdfjsLib.getDocument(url).promise.then(pdf => {
+              const pdfContainer = document.getElementById("pdfContainer");
+              pdfContainer.innerHTML = ""; // ✅ Clear previous render
+
+              for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                pdf.getPage(pageNum).then(page => {
+                  const pageWrapper = document.createElement("div");
+                  pageWrapper.classList.add("pdf-page"); // ✅ Add spacing between pages
+
+                  const canvas = document.createElement("canvas");
+                  pageWrapper.appendChild(canvas);
+                  pdfContainer.appendChild(pageWrapper);
+
+                  const viewport = page.getViewport({ scale: 1.5 });
+                  canvas.width = viewport.width;
+                  canvas.height = viewport.height;
+
+                  const context = canvas.getContext("2d");
+                  page.render({ canvasContext: context, viewport: viewport });
+                }).catch(error => console.error("Error rendering page:", error));
+              }
+            }).catch(error => console.error("Error loading PDF:", error));
+          }
+        </script>
+
+        <style>
+          .pdf-page {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background: #fff;
+          }
+        </style>
+
+        {% else %}
+        <p>No file to preview. Try uploading again.</p>
+        {% endif %}
+      </div>
+
+
+    </section>
+
+    <section>
+      <div class="settings-pane">
+        <div class="header-sp">
+          <h2>Preview</h2>
+          <h5>{{ page_count or 0 }} sheet{{ 's' if (page_count or 0) > 1 else '' }}</h5>
+        </div>
+
+        <div class="form-field-input">
+          <input type="text" value="{{ bnw|int }} page{{ 's' if bnw|int > 1 else '' }}" readonly>
+          <label>Black and White</label>
+        </div>
+
+        <div class="form-field-input">
+          <input type="text" value="{{ color|int }} page{{ 's' if color|int > 1 else '' }}" readonly>
+          <label>Colored</label>
+        </div>
+
+        <div class=" form-field-input">
+          <input type="text" value="{{ size }}" readonly>
+          <label>File Size</label>
+        </div>
+
+        <div class=" form-field-input">
+          <input type="text" value="{{ orientation }}" readonly>
+          <label>Orientation</label>
+        </div>
+
+        <div class=" button-container">
+          <form action="{{ url_for('invoice_page', filename=filename) }}" method="GET">
+            <input type="hidden" name="filename" value="{{ filename }}">
+            <input type="hidden" name="paper_size" value="{{ size }}">
+            <input type="hidden" name="orient" value="{{ orientation }}">
+            <button type="submit" class="apply-btn" name="next">Select Action</button>
+          </form>
+
+  </form>
+  <form action="{{ url_for('autodetect_page', filename=filename) }}" method="post">
+    <input type="hidden" name="filename" value="{{ filename }}">
+    <button class="delete-btn" type="submit" name="delete">Delete File</button>
+  </form>
+
+  <script>
+
+    const scrollUp = document.getElementById('scrollUp');
+    const scrollDown = document.getElementById('scrollDown');
+
+    // Function to toggle visibility of buttons
+    function toggleScrollButtons() {
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      const scrollHeight = document.documentElement.scrollHeight;
+      const clientHeight = window.innerHeight;
+
+      // Show/Hide the Scroll-Up button
+      if (scrollTop > 0) {
+        scrollUp.style.display = 'block';
+      } else {
+        scrollUp.style.display = 'none';
+      }
+
+      // Show/Hide the Scroll-Down button
+      if (scrollTop + clientHeight >= scrollHeight) {
+        scrollDown.style.display = 'none';
+      } else {
+        scrollDown.style.display = 'block';
+      }
+    }
+
+    // Scroll Up Button: Scroll to top of the page
+    scrollUp.addEventListener('click', function () {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+
+    // Scroll Down Button: Scroll to bottom of the page
+    scrollDown.addEventListener('click', function () {
+      window.scrollTo({
+        top: document.documentElement.scrollHeight,
+        behavior: 'smooth'
+      });
+    });
+
+    // Listen for scroll events
+    window.addEventListener('scroll', toggleScrollButtons);
+
+    document.addEventListener('DOMContentLoaded', toggleScrollButtons);
+  </script>
+
+</body>
+
+</html>
