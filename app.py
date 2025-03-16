@@ -5,8 +5,7 @@ import fitz
 import pdfkit
 import json
 import subprocess
-import platform
-
+import secrets
 import platform
 
 if platform.system() == "Windows":
@@ -15,7 +14,6 @@ if platform.system() == "Windows":
         import pythoncom
         import requests
         import comtypes.client
-        import secrets
         from admin import admin_bp
         from ocr_autodetect import run_analysis
         import fitz  # PyMuPDF
