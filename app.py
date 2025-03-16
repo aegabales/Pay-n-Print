@@ -5,7 +5,14 @@ import fitz
 import pdfkit
 import json
 import subprocess
-import win32api
+import platform
+
+if platform.system() == "Windows":
+    try:
+        import win32api
+    except ImportError:
+        pass
+
 import requests
 import pythoncom
 import comtypes.client
