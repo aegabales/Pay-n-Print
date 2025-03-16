@@ -1,0 +1,16 @@
+flask
+werkzeug
+mysql-connector-python
+pymupdf 
+pdfkit
+requests
+import platform
+
+if platform.system() == "Windows":
+    import win32api
+
+comtypes
+numpy
+pymysql
+pip==25.0.1
+
